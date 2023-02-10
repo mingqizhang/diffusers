@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 from diffusers import StableDiffusionPipeline, DiffusionPipeline, StableDiffusionImg2ImgPipeline,\
     EulerAncestralDiscreteScheduler, \
     DDIMScheduler,\
@@ -13,7 +13,7 @@ import torch
 from PIL import Image
 import numpy as np
 
-model_id = "./models/cat1000_3e6_constant_0.3_xformer"
+model_id = "./models/dog1000_2.5e6_constant_0.5_xformer"
 
 # Load models and create wrapper for stable diffusion
 text_encoder = CLIPTextModel.from_pretrained(
@@ -29,21 +29,22 @@ unet = UNet2DConditionModel.from_pretrained(
 
 # unet.enable_xformers_memory_efficient_attention()
 # vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16).to("cuda")
-pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", text_encoder = text_encoder,unet = unet,
+pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",text_encoder=text_encoder, unet=unet,
                                                 torch_dtype=torch.float16).to("cuda")
-pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
 
-man_promptlist = ["a photo of <zxc> man as a soldier, closeup character art by donato giancola, craig mullins, digital art, trending on artstation",
-              "Symmetry!!,highly detailed, digital painting, selfie portrait of <zxc> in cyber armor, dreamy and ethereal, expressive pose, black eyes, exciting expression, fantasy, intricate, elegant, many lightning, cold color, highly detailed, digital painting, artstation, concept art, cyberpunk wearing, smooth, sharp focus, led, illustration",
-              "Symmetry!!,highly detailed, selfie portrait of <zxc> with white beard and hair, wearing wolf pelt, with runic geometry face tattoos",
-              "Symmetry!!, selfie portrait of <zxc> is a rugged ranger, d&d, muscular, fantasy, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha",
-              "Symmetry!!, selfie portrait of <zxc> art by dan mumford and yusuke murata and makoto shinkai and ross tran, cosmic, heavenly, god rays, intricate detail, cinematic, 8 k, cel shaded, unreal engine, featured on artstation, pixiv"]
+man_promptlist = ["a photo of a <zxq> man as a soldier, closeup character art by donato giancola, craig mullins, digital art, trending on artstation",
+              "Symmetry!!,highly detailed, digital painting, selfie portrait of <zxq> in cyber armor, dreamy and ethereal, expressive pose, black eyes, exciting expression, fantasy, intricate, elegant, many lightning, cold color, highly detailed, digital painting, artstation, concept art, cyberpunk wearing, smooth, sharp focus, led, illustration",
+              "Symmetry!!,highly detailed, selfie portrait of <zxq> with white beard and hair, wearing wolf pelt, with runic geometry face tattoos",
+              "Symmetry!!, selfie portrait of <zxq> is a rugged ranger, d&d, muscular, fantasy, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha",
+              "Symmetry!!, selfie portrait of <zxq> art by dan mumford and yusuke murata and makoto shinkai and ross tran, cosmic, heavenly, god rays, intricate detail, cinematic, 8 k, cel shaded, unreal engine, featured on artstation, pixiv"]
 
 women_promptlist = ["Symmetry!!, Half - circuits hacker <ym> with cute - fine - face, pretty face, multicolored hair, realistic shaded perfect face, fine details by realistic shaded lighting poster by ilya kuvshinov katsuhiro otomo, magali villeneuve, artgerm, jeremy lipkin and michael garmash and rob rey",
                     "Portrait of <rb> with bangs, 1 9 6 0 s, long hair, red hairband, bangs, intricate, elegant, glowing lights, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by wlop, mars ravelo and greg rutkowski",
                     ]
 # Symmetry!!,highly detailed, digital painting, selfie portrait of <sam>
-prompt ="a photo of <cat> cat with sunglass, digital art, trending on artstation" 
+
+prompt ="a photo of <dog1> wearing (chinese new year Tang suit clothes:1.2), fantasy, chinese new year,red render, bitten a candied haw, new year atmosphere" 
 negative_prompt = "bad anatomy, bad hands, error, missing fingers, cropped, worst quality, low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry, ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
 
 pipe.enable_xformers_memory_efficient_attention()
@@ -51,7 +52,7 @@ result = Image.new("RGB", (512*5, 512))
 for i in range(5):
     image = pipe(prompt=prompt, 
                 negative_prompt=negative_prompt,
-                generator=torch.Generator(device="cuda").manual_seed(i), 
+                generator=torch.Generator(device="cuda").manual_seed(np.random.randint(0, 1000)), 
                 num_inference_steps=28, 
                 guidance_scale=11,
                 height=512,

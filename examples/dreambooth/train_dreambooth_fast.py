@@ -31,7 +31,7 @@ from transformers import AutoTokenizer, PretrainedConfig
 import sys
 sys.path.append('/home/mingqi/diffusers/examples/dreambooth/')
 from xformers_utils import set_use_memory_efficient_attention_xformers
-
+# from examples.dreambooth.xformers_utils import set_use_memory_efficient_attention_xformers
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.10.0.dev0")
 
@@ -759,13 +759,13 @@ def main(args):
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
-            if global_step == 400:
-                print("use enable_gradient_checkpointing and disable xformer")
-                set_use_memory_efficient_attention_xformers(unet, True)
-                unet.disable_gradient_checkpointing()
-                # if args.train_text_encoder:
-                #     text_encoder.gradient_checkpointing_enable()
-                unet.train()
+            # if global_step == 600:
+            #     print("use enable_gradient_checkpointing and disable xformer")
+            #     set_use_memory_efficient_attention_xformers(unet, True)
+            #     unet.disable_gradient_checkpointing()
+            #     # if args.train_text_encoder:
+            #     #     text_encoder.gradient_checkpointing_enable()
+            #     unet.train()
                 # text_encoder.train()
             if global_step >= args.max_train_steps:
                 break
@@ -810,8 +810,8 @@ def prior_save(args):
     import numpy as np
     import time
 
-    preprocess(args.instance_data_dir, args.instance_data_dir+'_512')
-    args.instance_data_dir = args.instance_data_dir+'_512'
+    # preprocess(args.instance_data_dir, args.instance_data_dir+'_512')
+    # args.instance_data_dir = args.instance_data_dir+'_512'
     prior_instance_path = args.instance_data_dir + '_prior'
     if not os.path.exists(prior_instance_path):
         os.mkdir(prior_instance_path)
@@ -932,7 +932,7 @@ def inference(path, instance):
         result.save(path+"/{}.jpg".format(str(idx)))    
 if __name__ == "__main__":
     args = parse_args()
-    # preprocess('/home/mingqi/diffusers/examples/dreambooth/data/zxc', '/home/mingqi/diffusers/examples/dreambooth/data/zxc_512')
-    # prior_save(args)
+    # preprocess('./data/zxq', './zxq_512')
+    prior_save(args)
     main(args)
     # inference(args.output_dir, 'rb')
