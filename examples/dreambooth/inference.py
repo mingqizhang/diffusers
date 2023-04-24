@@ -13,7 +13,7 @@ import torch
 from PIL import Image
 import numpy as np
 
-model_id = "./models/dog1000_2.5e6_constant_0.5_xformer"
+model_id = "./models/dog500_1e6_constant_0.1_xformer"
 
 # Load models and create wrapper for stable diffusion
 text_encoder = CLIPTextModel.from_pretrained(
@@ -44,17 +44,17 @@ women_promptlist = ["Symmetry!!, Half - circuits hacker <ym> with cute - fine - 
                     ]
 # Symmetry!!,highly detailed, digital painting, selfie portrait of <sam>
 
-prompt ="a photo of <dog1> wearing (chinese new year Tang suit clothes:1.2), fantasy, chinese new year,red render, bitten a candied haw, new year atmosphere" 
-negative_prompt = "bad anatomy, bad hands, error, missing fingers, cropped, worst quality, low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry, ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+prompt ="a photo of <dog2> dog" 
+negative_prompt = "nsfw,lowers,bad anatomy, bad hands, text,error,missing fingers,extra digit, fewer digits,cropped,worst quality,low quality,normal quality, jpeg artifacts,signature,watermark,username,blurry"
 
 pipe.enable_xformers_memory_efficient_attention()
 result = Image.new("RGB", (512*5, 512))
 for i in range(5):
     image = pipe(prompt=prompt, 
                 negative_prompt=negative_prompt,
-                generator=torch.Generator(device="cuda").manual_seed(np.random.randint(0, 1000)), 
+                generator=torch.Generator(device="cuda").manual_seed(i), 
                 num_inference_steps=28, 
-                guidance_scale=11,
+                guidance_scale=7,
                 height=512,
                 width=512).images[0]
     # image.save("./sample/{}.jpg".format(str(i))) 

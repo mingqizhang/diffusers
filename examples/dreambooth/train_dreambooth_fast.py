@@ -3,7 +3,7 @@ import hashlib
 import itertools
 import math
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import shutil
 from this import d
 import warnings
@@ -558,7 +558,15 @@ def main(args):
         optimizer_class = torch.optim.AdamW
 
     params_to_optimize = (
-        itertools.chain(unet.parameters(), text_encoder.parameters()) if args.train_text_encoder else unet.parameters()
+        [
+            {"params": itertools.chain(unet.parameters()), "lr": args.learning_rate},
+            {
+                "params": itertools.chain(text_encoder.parameters()),"lr": args.learning_rate,
+            },
+        ]
+        if args.train_text_encoder 
+        else  [{"params": itertools.chain(unet.parameters()), "lr": args.learning_rate}]
+        # itertools.chain(unet.parameters(), text_encoder.parameters()) if args.train_text_encoder else unet.parameters()
     )
     optimizer = optimizer_class(
         params_to_optimize,
@@ -794,7 +802,7 @@ def main(args):
         # if not os.path.exists(save_path):
         #     os.mkdir(save_path)
         
-        pipeline.save_pretrained(args.output_dir)
+        pipeline.save_pretrained(args.output_dir, safe_serialization=True)
         removedir = ["safety_checker", "feature_extractor", "vae", "tokenizer", "scheduler"]
         for i in removedir:
             if os.path.exists(os.path.join(args.output_dir, i)):
